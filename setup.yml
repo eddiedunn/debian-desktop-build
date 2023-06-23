@@ -141,7 +141,7 @@
 
     - name: Create ZFS filesystem
       command:
-        cmd: zfs create tank0/home/{{ username }}
+        cmd: zfs create tank0/home
 
 
     # ... Continue manually with the remaining steps in zfs_setup.md ...
