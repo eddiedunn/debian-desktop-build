@@ -92,4 +92,6 @@
     sudo sh cuda_12.1.1_530.30.02_linux.run --toolkit --silent --override --toolkitpath=/opt/cuda-12.1.1
     ```
 
+13. Install and setup [ZFS](zfs_setup.md)
+
 Remember to replace `<username>` with your actual username.
