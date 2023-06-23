@@ -20,10 +20,10 @@
 4. Create a new ZFS filesystem for the `<user_name>` user's home directory in your ZFS pool `tank0`:
 
     ```bash
-    sudo zfs create tank0/home/<user_name>
+    sudo zfs create tank0/home
     ```
 
-    This command will create a new ZFS filesystem at `/tank0/home/<user_name>`.
+    This command will create a new ZFS filesystem at `/tank0/home`.
 
 5. Ensure that you have a recent backup of the data you are about to move.
 
@@ -52,7 +52,7 @@
 9. Set the mount point of your ZFS file system to the new home directory:
 
     ```bash
-    sudo zfs set mountpoint=/home/<user_name> tank0/home/<user_name>
+    sudo zfs set mountpoint=/tank0/home tank0/home
     ```
 
 10. Login as `<user_name>` and verify that all your files are present in your new home directory and everything works as expected.
