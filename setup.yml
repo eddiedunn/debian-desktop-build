@@ -1,0 +1,148 @@
+---
+- hosts: localhost
+  vars:
+    username: '<username>'
+    zfs_disk1_id: '<disk1_id>'
+    zfs_disk2_id: '<disk2_id>'
+    zfs_nvme_id: '<nvme_id>'
+  become: yes
+  tasks:
+    - name: Comment out cdrom in sources.list
+      replace:
+        path: /etc/apt/sources.list
+        regexp: '^deb cdrom:'
+        replace: '#deb cdrom:'
+        
+    - name: Download Sublime Text GPG key
+      get_url:
+        url: https://download.sublimetext.com/sublimehq-pub.gpg
+        dest: /tmp/sublimehq-pub.gpg
+        mode: '0644'
+
+    - name: Import GPG key into a temporary keyring
+      command:
+        cmd: gpg --no-default-keyring --keyring /tmp/temp-keyring.gpg --import /tmp/sublimehq-pub.gpg
+        creates: /tmp/temp-keyring.gpg
+
+    - name: Export the GPG key into the original file
+      command:
+        cmd: gpg --no-default-keyring --keyring /tmp/temp-keyring.gpg --export --output /tmp/sublimehq-pub.gpg
+        creates: /tmp/sublimehq-pub.gpg
+
+    - name: Remove temporary keyring
+      file:
+        path: /tmp/temp-keyring.gpg
+        state: absent
+
+    - name: Move the GPG key to /etc/apt/trusted.gpg.d/
+      command:
+        cmd: mv /tmp/sublimehq-pub.gpg /etc/apt/trusted.gpg.d/
+        creates: /etc/apt/trusted.gpg.d/sublimehq-pub.gpg
+
+    - name: Add Sublime Text repository to sources.list
+      shell: echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+      args:
+        executable: /bin/bash
+
+    - name: Install necessary packages
+      apt:
+        name:
+          - git
+          - apt-transport-https
+          - sublime-text
+          - zsh
+          - rsync
+        state: present
+
+    - name: Install Oh My Zsh
+      become: no
+      shell: 'sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"'
+
+    - name: Change default shell to Zsh
+      user:
+        name: "{{ username }}"
+        shell: /bin/zsh
+
+    - name: Download Discord
+      get_url:
+        url: https://discord.com/api/download?platform=linux&format=deb
+        dest: /tmp/discord.deb
+
+    - name: Install Discord
+      apt:
+        deb: /tmp/discord.deb
+
+    - name: Download Zoom
+      get_url:
+        url: https://zoom.us/client/5.15.0.4063/zoom_amd64.deb
+        dest: /tmp/zoom_amd64.deb
+
+    - name: Install Zoom
+      apt:
+        deb: /tmp/zoom_amd64.deb
+
+    - name: Download Visual Studio Code
+      get_url:
+        url: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
+        dest: /tmp/vscode.deb
+
+    - name: Install Visual Studio Code
+      apt:
+        deb: /tmp/vscode.deb
+
+    - name: Install development libraries
+      apt:
+        name:
+          - make
+          - build-essential
+          - libssl-dev
+          - zlib1g-dev
+          - libbz2-dev
+          - libreadline-dev
+          - libsqlite3-dev
+          - wget
+          - curl
+          - llvm
+          - libncurses5-dev
+          - libncursesw5-dev
+          - xz-utils
+          - tk-dev
+          - libffi-dev
+          - liblzma-dev
+        state: latest
+
+    - name: Install Pyenv
+      become: no
+      shell: curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
+      args:
+        executable: /bin/bash
+
+    - name: Add Pyenv to .zshrc
+      become: no
+      blockinfile:
+        path: /home/{{ username }}/.zshrc
+        block: |
+          export PYENV_ROOT="$HOME/.pyenv"
+          command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+          eval "$(pyenv init -)"
+
+    - name: Install ZFS utilities
+      apt:
+        name:
+          - zfsutils-linux
+          - zfs-dkms
+          - zfs-zed
+        state: present
+
+    - name: Create ZFS pool and cache
+      shell: |
+        zpool create tank0 mirror /dev/disk/by-id/{{ zfs_disk1_id }} /dev/disk/by-id/{{ zfs_disk2_id }}
+        zpool add tank0 cache /dev/disk/by-id/{{ zfs_nvme_id }}
+
+    - name: Create ZFS filesystem
+      command:
+        cmd: zfs create tank0/home/{{ username }}
+
+
+    # ... Continue manually with the remaining steps in zfs_setup.md ...
+
