@@ -109,6 +109,7 @@
           - tk-dev
           - libffi-dev
           - liblzma-dev
+          - zip
         state: latest
 
     - name: Install Pyenv
