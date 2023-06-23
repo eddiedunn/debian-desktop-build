@@ -1,4 +1,3 @@
-syntax on               " enable syntax highlighting
 set cursorline          " highlight the current line
 " set background=dark   " darker color scheme
 " set ruler             " show line number in bar
@@ -17,7 +16,6 @@ filetype plugin on      " enable filetype-specific plugins
 " colorscheme cobalt      " requires cobalt.vim to be in ~/.vim/colors
 
 " column-width visual indication
-let &colorcolumn=join(range(81,999),",")
 highlight ColorColumn ctermbg=235 guibg=#001D2F
 
 " tabs and indenting
