@@ -110,6 +110,10 @@
           - libffi-dev
           - liblzma-dev
           - zip
+          - obs-studio
+          - portaudio19-dev
+          - ffmpeg
+          - xfce4-screenshooter
         state: latest
 
     - name: Install Pyenv

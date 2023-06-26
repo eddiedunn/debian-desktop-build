@@ -26,7 +26,7 @@
 4. Install git, apt-transport-https (needed for https repositories), Sublime Text, and Zsh:
 
     ```bash
-    sudo apt install git apt-transport-https sublime-text zsh rsync zip
+    sudo apt install git apt-transport-https sublime-text zsh rsync zip obs-studio
     ```
 
 5. Install Oh My Zsh and change your default shell to Zsh (replace `<username>` with your username):
