@@ -62,7 +62,7 @@
     ```bash
     sudo apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
     libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
-    xz-utils tk-dev libffi-dev liblzma-dev
+    xz-utils tk-dev libffi-dev liblzma-dev ca-certificates curl gnupg2 software-properties-common
     ```
 
 10. Install Pyenv (non-root command):
@@ -95,3 +95,43 @@
 13. Install and setup [ZFS](zfs_setup.md)
 
 Remember to replace `<username>` with your actual username.
+
+14. Install Docker CE
+Prereqs installed before
+
+Install gpg key and add repository
+
+```zsh
+curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /tmp/docker.gpg
+sudo mv /tmp/docker.gpg /etc/apt/trusted.gpg.d/
+
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+```
+
+Update package list and install
+
+```zsh
+sudo apt update
+sudo apt install docker-ce
+
+#check with hello-world
+sudo docker run hello-world
+```
+setup mysql
+
+```zsh
+docker pull mysql:latest
+docker run --name mysql_container -v /path/to/db/storage:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=your_password -p 3306:3306 -d mysql:latest
+```
+
+Copy and run sql scripts in container
+
+```zsh
+docker cp /path/to/your/script.sql mysql_container:/script.sql
+docker exec -it mysql_container /bin/bash -c "mysql -uroot -p'your_password' <db_name> < /script.sql"
+
+```
+connect to the db
+```zsh
+docker exec -it mysql_container /bin/bash -c "mysql -uroot -p'your_password' <db_name> "
+```
